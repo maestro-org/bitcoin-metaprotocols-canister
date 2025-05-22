@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/bitcoin-metaprotocols-canister-backend"
+]
+resolver = "2"

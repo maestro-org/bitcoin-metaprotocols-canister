@@ -1,0 +1,27 @@
+{
+  "canisters": {
+    "bitcoin-metaprotocols-canister-backend": {
+      "candid": "src/bitcoin-metaprotocols-canister-backend/bitcoin-metaprotocols-canister-backend.did",
+      "package": "bitcoin-metaprotocols-canister-backend",
+      "type": "rust"
+    },
+    "bitcoin-metaprotocols-canister-frontend": {
+      "dependencies": [
+        "bitcoin-metaprotocols-canister-backend"
+      ],
+      "source": [
+        "src/bitcoin-metaprotocols-canister-frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "bitcoin-metaprotocols-canister-frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
