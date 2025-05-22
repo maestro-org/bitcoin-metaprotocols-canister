@@ -1,6 +1,6 @@
 # Bitcoin Metaprotocols Canister
 
-[ICP canister](https://internetcomputer.org/docs/building-apps/essentials/canisters) for Bitcoin metaprotocols. Born out a collaboration with Maestro and Liquidium.
+[ICP canister](https://internetcomputer.org/docs/building-apps/essentials/canisters) for Bitcoin metaprotocols. Born out if a collaboration with Maestro and Liquidium.
 
 ## Prerequisites
 To get started, ensure you have the following installed:
