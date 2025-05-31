@@ -1,17 +1,24 @@
-type Inscription = record {
+type AddressInscription = record {
+    inscription_id : text;
     satoshis : text;
-    utxo_block_height : int64;
+    utxo_sat_offset : int64;
     utxo_txid : text;
     utxo_vout : int32;
-    utxo_sat_offset : int64;
-    inscription_id : text;
-    utxo_confirmations : int64
+    utxo_block_height : int64;
+    utxo_confirmations : int64;
+    collection_symbol : opt text
 };
+
 type LastUpdated = record { block_hash : text; block_height : int64 };
-type MaestroResponse = record {
-    data : vec Inscription;
+type AddressInscriptions = record {
+    data : vec AddressInscription;
     last_updated : LastUpdated;
     next_cursor : opt text
 };
-type Result = variant { Ok : MaestroResponse; Err : text };
-service : { get_inscriptions : (text, text, text) -> (Result) query }
+type AddressInscriptionsResult = variant {
+    Ok : AddressInscriptions;
+    Err : text
+};
+service : {
+    get_address_inscriptions : (text, text, text) -> (AddressInscriptionsResult) query
+}
