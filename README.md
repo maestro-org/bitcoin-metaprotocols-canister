@@ -39,13 +39,16 @@ dfx deploy
 # Test
 dfx canister call --update bitcoin-metaprotocols-canister-backend get_address_inscriptions
 
+dfx canister call --update bitcoin-metaprotocols-canister-backend get_utxo_inscriptions
+
 # inputs:
 # $MAESTRO_API_KEY
 # bc1qg2jx2uw33th6p78v638nd3pyd0g8d3wvu2et7p
 # 10
 ```
 
-### Roadmap
+### TODOs
 
 -   [ ] Inscriptions by address with floor price
--   [ ] Cleanup
+-   [ ] Store Liquidium's api key inside the canister with a gated setter function that can only be used by the controller
+-   [ ] Whitelist Liquidium consumer canister ID
