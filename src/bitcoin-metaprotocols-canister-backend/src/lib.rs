@@ -2,10 +2,23 @@ use candid::{candid_method, CandidType};
 use ic_cdk::api::management_canister::http_request::{
     CanisterHttpRequestArgument, HttpHeader, HttpMethod,
 };
+use ic_cdk::storage;
 use ic_cdk_macros::*;
 use serde::{Deserialize, Serialize};
 
 // General
+#[derive(CandidType, Deserialize, Serialize, Debug)]
+struct ApiKey {
+    key: String,
+}
+
+#[query]
+#[candid_method(query)]
+fn get_api_key() -> String {
+    let (api_key,): (ApiKey,) = storage::stable_restore().expect("Failed to load API key");
+    api_key.key
+}
+
 #[derive(CandidType, Deserialize, Serialize, Debug)]
 pub struct LastUpdated {
     block_hash: String,
@@ -108,10 +121,11 @@ pub struct UtxoInscriptions {
 #[update]
 #[candid_method(update)]
 async fn get_address_inscriptions(
-    api_key: String,
     address: String,
     count: String,
 ) -> Result<AddressInscriptions, String> {
+    let api_key = get_api_key();
+
     let address_inscriptions_maestro_url = format!(
         "https://xbt-mainnet.gomaestro-api.org/v0/addresses/{}/inscriptions?count={}",
         address, count
@@ -223,10 +237,11 @@ async fn get_address_inscriptions(
 #[update]
 #[candid_method(update)]
 async fn get_utxo_inscriptions(
-    api_key: String,
     tx_hash: String,
     output_index: String,
 ) -> Result<UtxoInscriptions, String> {
+    let api_key = get_api_key();
+
     let utxo_inscriptions_maestro_url = format!(
         "https://xbt-mainnet.gomaestro-api.org/v0/transactions/{}/outputs/{}",
         tx_hash, output_index
@@ -327,6 +342,17 @@ async fn get_utxo_inscriptions(
         }
         Err((code, message)) => Err(format!("HTTP error {}: {}", code as u8, message)),
     }
+}
+
+#[update]
+#[candid_method(update)]
+async fn set_api_key(new_key: String) {
+    let caller = ic_cdk::caller();
+    let controller = ic_cdk::id();
+    if caller != controller {
+        ic_cdk::trap("Only the controller can set the API key.");
+    }
+    storage::stable_save((ApiKey { key: new_key },)).expect("Failed to save API key");
 }
 
 ic_cdk::export_candid!();
