@@ -36,6 +36,9 @@ dfx build
 # Deploy
 dfx deploy
 
+# Get info about deployed canister
+dfx canister info bitcoin-metaprotocols-canister-backend
+
 # Set canister principal
 dfx canister update-settings bitcoin-metaprotocols-canister-backend --set-controller <id>
 
@@ -43,7 +46,7 @@ dfx canister update-settings bitcoin-metaprotocols-canister-backend --set-contro
 dfx canister call --update bitcoin-metaprotocols-canister-backend set_api_key '("maestro_api_key")'
 
 # Test
-dfx canister call --update bitcoin-metaprotocols-canister-backend get_address_inscriptions '("bc1qg2jx2uw33th6p78v638nd3pyd0g8d3wvu2et7p", "10")'
+dfx canister call --update bitcoin-metaprotocols-canister-backend get_address_inscriptions '("bc1pa2lw8d6u3kkexzqn9hqgzultkzjjc9rxtveldes68ryfdq8tmslqwfuccl", "10")'
 
 dfx canister call --update bitcoin-metaprotocols-canister-backend get_utxo_inscriptions
 

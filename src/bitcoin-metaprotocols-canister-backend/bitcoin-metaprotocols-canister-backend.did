@@ -1,5 +1,9 @@
 // General
 type LastUpdated = record { block_hash : text; block_height : int64 };
+type SetApiKeyResult = variant {
+    Ok : null;
+    Err : text
+};
 
 // Address Inscriptions
 type AddressInscription = record {
@@ -40,5 +44,5 @@ type UtxoInscriptionsResult = variant {
 service : {
     get_address_inscriptions : (text, text) -> (AddressInscriptionsResult) query;
     get_utxo_inscriptions : (text, text) -> (UtxoInscriptionsResult) query;
-    set_api_key : (text) -> (text) query
+    set_api_key : (text) -> (SetApiKeyResult) query
 }

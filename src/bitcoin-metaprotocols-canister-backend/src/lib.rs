@@ -7,6 +7,14 @@ use ic_cdk_macros::*;
 use serde::{Deserialize, Serialize};
 
 // General
+const AUTHORIZED_CALLERS: [&str; 5] = [
+    "62ick-jmsqq-h6wq5-emdfw-qblno-qphae-hs7y3-dxoyp-xiccq-bw4q3-aae", // maestro
+    "roqha-4aaaa-aaaap-qplnq-cai",                                     // liquidium
+    "e453p-eqaaa-aaaar-qanya-cai",
+    "vr4ua-siaaa-aaaar-qaosq-cai",
+    "pimqm-2dtug-w3ejt-krqai-jlp3u-uux2y-erjcw-wbvhu-pmvhu-hunju-wqe",
+];
+
 #[derive(CandidType, Deserialize, Serialize, Debug)]
 struct ApiKey {
     key: String,
@@ -124,6 +132,13 @@ async fn get_address_inscriptions(
     address: String,
     count: String,
 ) -> Result<AddressInscriptions, String> {
+    let caller = ic_cdk::caller();
+    let caller_str = caller.to_text();
+
+    if !AUTHORIZED_CALLERS.iter().any(|&auth| auth == caller_str) {
+        return Err("Unauthorized".into());
+    }
+
     let api_key = get_api_key();
 
     let address_inscriptions_maestro_url = format!(
@@ -240,6 +255,13 @@ async fn get_utxo_inscriptions(
     tx_hash: String,
     output_index: String,
 ) -> Result<UtxoInscriptions, String> {
+    let caller = ic_cdk::caller();
+    let caller_str = caller.to_text();
+
+    if !AUTHORIZED_CALLERS.iter().any(|&auth| auth == caller_str) {
+        return Err("Unauthorized".into());
+    }
+
     let api_key = get_api_key();
 
     let utxo_inscriptions_maestro_url = format!(
@@ -344,15 +366,20 @@ async fn get_utxo_inscriptions(
     }
 }
 
+// Update the set_api_key function to use the global constant
 #[update]
 #[candid_method(update)]
-async fn set_api_key(new_key: String) {
+async fn set_api_key(new_key: String) -> Result<(), String> {
     let caller = ic_cdk::caller();
-    let controller = ic_cdk::id();
-    if caller != controller {
-        ic_cdk::trap("Only the controller can set the API key.");
+    let caller_str = caller.to_text();
+
+    if !AUTHORIZED_CALLERS.iter().any(|&auth| auth == caller_str) {
+        return Err("Unauthorized".into());
     }
+
     storage::stable_save((ApiKey { key: new_key },)).expect("Failed to save API key");
+
+    Ok(())
 }
 
 ic_cdk::export_candid!();
