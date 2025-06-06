@@ -49,15 +49,9 @@ dfx canister call --update bitcoin-metaprotocols-canister-backend set_api_key '(
 dfx canister call --update bitcoin-metaprotocols-canister-backend get_address_inscriptions '("bc1pa2lw8d6u3kkexzqn9hqgzultkzjjc9rxtveldes68ryfdq8tmslqwfuccl", "10")'
 
 dfx canister call --update bitcoin-metaprotocols-canister-backend get_utxo_inscriptions
-
-# inputs:
-# $MAESTRO_API_KEY
-# bc1qg2jx2uw33th6p78v638nd3pyd0g8d3wvu2et7p
-# 10
 ```
 
 ### TODOs
 
+-   [ ] Support IPv6
 -   [ ] Inscriptions by address with floor price
--   [ ] Store Liquidium's api key inside the canister with a gated setter function that can only be used by the controller
--   [ ] Whitelist Liquidium consumer canister ID
