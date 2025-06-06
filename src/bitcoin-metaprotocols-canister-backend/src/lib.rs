@@ -1,6 +1,7 @@
 use candid::{candid_method, CandidType};
 use ic_cdk::api::management_canister::http_request::{
-    CanisterHttpRequestArgument, HttpHeader, HttpMethod,
+    CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformArgs,
+    TransformContext, TransformFunc,
 };
 use ic_cdk::storage;
 use ic_cdk_macros::*;
@@ -15,6 +16,8 @@ const AUTHORIZED_CALLERS: [&str; 6] = [
     "vr4ua-siaaa-aaaar-qaosq-cai",
     "pimqm-2dtug-w3ejt-krqai-jlp3u-uux2y-erjcw-wbvhu-pmvhu-hunju-wqe",
 ];
+
+const BASE_URL: &str = "https://xbt-mainnet.gomaestro-api.org/v0";
 
 #[derive(CandidType, Deserialize, Serialize, Debug)]
 struct ApiKey {
@@ -143,8 +146,8 @@ async fn get_address_inscriptions(
     let api_key = get_api_key();
 
     let address_inscriptions_maestro_url = format!(
-        "https://xbt-mainnet.gomaestro-api.org/v0/addresses/{}/inscriptions?count={}",
-        address, count
+        "{}/addresses/{}/inscriptions?count={}",
+        BASE_URL, address, count
     );
 
     let address_inscriptions_maestro_request = CanisterHttpRequestArgument {
@@ -156,7 +159,10 @@ async fn get_address_inscriptions(
         }],
         body: None,
         max_response_bytes: Some(5 * 1000), // 5000 KB
-        transform: None,
+        transform: Some(TransformContext {
+            function: TransformFunc::new(ic_cdk::id(), "transform".to_string()),
+            context: vec![],
+        }),
     };
 
     let cycles = 1_000_000_000u128;
@@ -179,8 +185,8 @@ async fn get_address_inscriptions(
 
             for inscription in address_inscriptions_maestro_response.data {
                 let inscription_info_url = format!(
-                    "https://xbt-mainnet.gomaestro-api.org/v0/assets/inscriptions/{}",
-                    inscription.inscription_id
+                    "{}/assets/inscriptions/{}",
+                    BASE_URL, inscription.inscription_id
                 );
 
                 let inscription_info_request = CanisterHttpRequestArgument {
@@ -192,7 +198,10 @@ async fn get_address_inscriptions(
                     }],
                     body: None,
                     max_response_bytes: Some(5 * 1000),
-                    transform: None,
+                    transform: Some(TransformContext {
+                        function: TransformFunc::new(ic_cdk::id(), "transform".to_string()),
+                        context: vec![],
+                    }),
                 };
 
                 let collection_symbol =
@@ -266,8 +275,8 @@ async fn get_utxo_inscriptions(
     let api_key = get_api_key();
 
     let utxo_inscriptions_maestro_url = format!(
-        "https://xbt-mainnet.gomaestro-api.org/v0/transactions/{}/outputs/{}",
-        tx_hash, output_index
+        "{}/transactions/{}/outputs/{}",
+        BASE_URL, tx_hash, output_index
     );
 
     let utxo_inscriptions_maestro_request = CanisterHttpRequestArgument {
@@ -279,7 +288,10 @@ async fn get_utxo_inscriptions(
         }],
         body: None,
         max_response_bytes: Some(5 * 1000), // 5000 KB
-        transform: None,
+        transform: Some(TransformContext {
+            function: TransformFunc::new(ic_cdk::id(), "transform".to_string()),
+            context: vec![],
+        }),
     };
 
     let cycles = 1_000_000_000u128;
@@ -302,8 +314,8 @@ async fn get_utxo_inscriptions(
 
             for inscription in maestro_tx_out_into_response.data.inscriptions {
                 let inscription_info_url = format!(
-                    "https://xbt-mainnet.gomaestro-api.org/v0/assets/inscriptions/{}",
-                    inscription.inscription_id
+                    "{}/assets/inscriptions/{}",
+                    BASE_URL, inscription.inscription_id
                 );
 
                 let inscription_info_request = CanisterHttpRequestArgument {
@@ -315,7 +327,10 @@ async fn get_utxo_inscriptions(
                     }],
                     body: None,
                     max_response_bytes: Some(5 * 1000),
-                    transform: None,
+                    transform: Some(TransformContext {
+                        function: TransformFunc::new(ic_cdk::id(), "transform".to_string()),
+                        context: vec![],
+                    }),
                 };
 
                 let collection_symbol =
@@ -381,6 +396,25 @@ async fn set_api_key(new_key: String) -> Result<(), String> {
     storage::stable_save((ApiKey { key: new_key },)).expect("Failed to save API key");
 
     Ok(())
+}
+
+#[ic_cdk::query(hidden = true)]
+fn transform(raw: TransformArgs) -> HttpResponse {
+    let headers = vec![];
+
+    let mut res = HttpResponse {
+        status: raw.response.status.clone(),
+        body: raw.response.body.clone(),
+        headers,
+        ..Default::default()
+    };
+
+    if res.status == 200u8 {
+        res.body = raw.response.body;
+    } else {
+        ic_cdk::println!("Received an error from maestro: err = {:?}", raw);
+    }
+    res
 }
 
 ic_cdk::export_candid!();
