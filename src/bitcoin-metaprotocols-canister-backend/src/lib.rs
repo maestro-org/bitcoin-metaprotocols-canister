@@ -69,6 +69,18 @@ pub struct MaestroInscriptionInfoResponse {
 }
 
 #[derive(CandidType, Deserialize, Serialize, Debug)]
+pub struct MaestroCollectionStats {
+    floorPrice: Option<String>,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug)]
+pub struct MaestroCollectionStatsResponse {
+    data: MaestroCollectionStats,
+    last_updated: LastUpdated,
+    next_cursor: Option<String>,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug)]
 pub struct AddressInscription {
     inscription_id: String,
     satoshis: String,
@@ -78,6 +90,7 @@ pub struct AddressInscription {
     utxo_block_height: i64,
     utxo_confirmations: i64,
     collection_symbol: Option<String>,
+    floor_price: i64,
 }
 
 #[derive(CandidType, Deserialize, Serialize, Debug)]
@@ -184,6 +197,7 @@ async fn get_address_inscriptions(
             let mut final_result: Vec<AddressInscription> = Vec::new();
 
             for inscription in address_inscriptions_maestro_response.data {
+                // Fetch inscription info
                 let inscription_info_url = format!(
                     "{}/assets/inscriptions/{}",
                     BASE_URL, inscription.inscription_id
@@ -237,6 +251,66 @@ async fn get_address_inscriptions(
                         }
                     };
 
+                // Fetch floor price if collection_symbol exists
+                let mut floor_price = 0;
+                if let Some(ref symbol) = collection_symbol {
+                    let collection_stats_url =
+                        format!("{}/assets/collections/{}/stats", BASE_URL, symbol);
+
+                    let collection_stats_request = CanisterHttpRequestArgument {
+                        url: collection_stats_url,
+                        method: HttpMethod::GET,
+                        headers: vec![HttpHeader {
+                            name: "api-key".to_string(),
+                            value: api_key.clone(),
+                        }],
+                        body: None,
+                        max_response_bytes: Some(5 * 1000),
+                        transform: Some(TransformContext {
+                            function: TransformFunc::new(ic_cdk::id(), "transform".to_string()),
+                            context: vec![],
+                        }),
+                    };
+
+                    floor_price =
+                        match ic_cdk::api::management_canister::http_request::http_request(
+                            collection_stats_request,
+                            cycles,
+                        )
+                        .await
+                        {
+                            Ok((collection_stats_response,)) => {
+                                match serde_json::from_slice::<MaestroCollectionStatsResponse>(
+                                    &collection_stats_response.body,
+                                ) {
+                                    Ok(stats_response) => stats_response
+                                        .data
+                                        .floorPrice
+                                        .unwrap_or("0".to_string())
+                                        .parse::<i64>()
+                                        .unwrap_or(0),
+                                    Err(e) => {
+                                        ic_cdk::println!(
+                                        "Failed to parse MaestroCollectionStatsResponse: {} (body: {})",
+                                        e,
+                                        String::from_utf8_lossy(&collection_stats_response.body)
+                                    );
+                                        0
+                                    }
+                                }
+                            }
+                            Err((code, message)) => {
+                                ic_cdk::println!(
+                                    "Failed to fetch collection stats for {}: {} - {}",
+                                    symbol,
+                                    code as u8,
+                                    message
+                                );
+                                0
+                            }
+                        };
+                }
+
                 final_result.push(AddressInscription {
                     inscription_id: inscription.inscription_id,
                     satoshis: inscription.satoshis,
@@ -246,6 +320,7 @@ async fn get_address_inscriptions(
                     utxo_block_height: inscription.utxo_block_height,
                     utxo_confirmations: inscription.utxo_confirmations,
                     collection_symbol,
+                    floor_price,
                 });
             }
 
