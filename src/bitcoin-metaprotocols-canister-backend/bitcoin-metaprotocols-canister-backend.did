@@ -14,7 +14,8 @@ type AddressInscription = record {
     utxo_vout : int32;
     utxo_block_height : int64;
     utxo_confirmations : int64;
-    collection_symbol : opt text
+    collection_symbol : opt text;
+    floor_price : opt int64
 };
 type AddressInscriptions = record {
     data : vec AddressInscription;
