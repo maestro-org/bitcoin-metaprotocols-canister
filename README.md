@@ -44,9 +44,20 @@ dfx canister create bitcoin-metaprotocols-canister-backend
 dfx build
 ```
 
+### Generate Candid (Optional)
+Prerequisite:
+- Get the `didc` binary from https://github.com/dfinity/candid/releases.
+- Install ic-wasm: `cargo install ic-wasm`
+
+Generate candid:
+```
+make generate_did
+```
+
 #### Deploy Canister
 
 ```bash
+make generate_did
 dfx deploy
 ```
 
