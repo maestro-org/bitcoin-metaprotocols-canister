@@ -8,7 +8,7 @@ use ic_cdk_macros::*;
 use serde::{Deserialize, Serialize};
 
 // General
-const AUTHORIZED_CALLERS: [&str; 6] = [
+const AUTHORIZED_CALLERS: [&str; 7] = [
     "62ick-jmsqq-h6wq5-emdfw-qblno-qphae-hs7y3-dxoyp-xiccq-bw4q3-aae", // maestro
     "xktoe-jjqeb-tzsr3-hxjir-en65h-6agv7-bbq2g-dyoch-276wj-waea7-rqe",
     "roqha-4aaaa-aaaap-qplnq-cai", // liquidium
