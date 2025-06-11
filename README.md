@@ -44,9 +44,13 @@ dfx canister create bitcoin-metaprotocols-canister-backend
 dfx build
 ```
 
+### Generate Candid (Optional)
+make generate_did
+
 #### Deploy Canister
 
 ```bash
+make generate_did
 dfx deploy
 ```
 
