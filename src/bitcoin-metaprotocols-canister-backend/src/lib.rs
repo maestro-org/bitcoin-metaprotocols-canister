@@ -15,6 +15,7 @@ const AUTHORIZED_CALLERS: [&str; 6] = [
     "e453p-eqaaa-aaaar-qanya-cai",
     "vr4ua-siaaa-aaaar-qaosq-cai",
     "pimqm-2dtug-w3ejt-krqai-jlp3u-uux2y-erjcw-wbvhu-pmvhu-hunju-wqe",
+    "daoh3-exchb-6dvbd-fyxld-7kxjo-fdddf-4vhqp-mcoo2-s7gqh-qwpfd-pae",
 ];
 
 const BASE_URL: &str = "https://xbt-mainnet.gomaestro-api.org/v0";
@@ -27,6 +28,13 @@ struct ApiKey {
 #[query]
 #[candid_method(query)]
 fn get_api_key() -> String {
+    let caller = ic_cdk::caller();
+    let caller_str = caller.to_text();
+
+    if !AUTHORIZED_CALLERS.iter().any(|&auth| auth == caller_str) {
+        panic!("Unauthorized");
+    }
+
     let (api_key,): (ApiKey,) = storage::stable_restore().expect("Failed to load API key");
     api_key.key
 }
