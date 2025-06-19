@@ -35,7 +35,7 @@ dfx generate
 #### Create Canister
 
 ```bash
-dfx canister create bitcoin-metaprotocols-canister-backend
+dfx canister create bitcoin-metaprotocols-canister-dev
 ```
 
 #### Build Canister (Optional)
@@ -45,11 +45,14 @@ dfx build
 ```
 
 ### Generate Candid (Optional)
+
 Prerequisite:
-- Get the `didc` binary from https://github.com/dfinity/candid/releases.
-- Install ic-wasm: `cargo install ic-wasm`
+
+-   Get the `didc` binary from https://github.com/dfinity/candid/releases.
+-   Install ic-wasm: `cargo install ic-wasm`
 
 Generate candid:
+
 ```
 make generate_did
 ```
@@ -64,7 +67,7 @@ dfx deploy
 #### Get Canister Info
 
 ```bash
-dfx canister info bitcoin-metaprotocols-canister-backend
+dfx canister info bitcoin-metaprotocols-canister-dev
 ```
 
 #### Update Canister Settings
@@ -72,7 +75,7 @@ dfx canister info bitcoin-metaprotocols-canister-backend
 Set the canister principal:
 
 ```bash
-dfx canister update-settings bitcoin-metaprotocols-canister-backend --set-controller <id>
+dfx canister update-settings bitcoin-metaprotocols-canister-dev --set-controller <id>
 ```
 
 ### API Key Management
@@ -80,7 +83,7 @@ dfx canister update-settings bitcoin-metaprotocols-canister-backend --set-contro
 Set the API key:
 
 ```bash
-dfx canister call --update bitcoin-metaprotocols-canister-backend set_api_key '("maestro_api_key")'
+dfx canister call --update bitcoin-metaprotocols-canister-dev set_api_key '("maestro_api_key")'
 ```
 
 ### Testing
@@ -88,13 +91,13 @@ dfx canister call --update bitcoin-metaprotocols-canister-backend set_api_key '(
 #### Test Address Inscriptions
 
 ```bash
-dfx canister call --update bitcoin-metaprotocols-canister-backend get_address_inscriptions '("bc1pa2lw8d6u3kkexzqn9hqgzultkzjjc9rxtveldes68ryfdq8tmslqwfuccl", "10")'
+dfx canister call --update bitcoin-metaprotocols-canister-dev get_address_inscriptions '("bc1pa2lw8d6u3kkexzqn9hqgzultkzjjc9rxtveldes68ryfdq8tmslqwfuccl", "10")'
 ```
 
 #### Test UTXO Inscriptions
 
 ```bash
-dfx canister call --update bitcoin-metaprotocols-canister-backend get_utxo_inscriptions '("604abd1c0ff2ce5a89b004a0601a75280ed3b76384af37b0a46a23471e9288e7", "1")'
+dfx canister call --update bitcoin-metaprotocols-canister-dev get_utxo_inscriptions '("604abd1c0ff2ce5a89b004a0601a75280ed3b76384af37b0a46a23471e9288e7", "1")'
 ```
 
 ## TODOs

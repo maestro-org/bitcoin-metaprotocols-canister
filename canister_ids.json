@@ -1,0 +1,8 @@
+{
+    "bitcoin-metaprotocols-canister-dev": {
+        "ic": "gdne4-jqaaa-aaaap-qp3ya-cai"
+    },
+    "bitcoin-metaprotocols-canister-prod": {
+        "ic": "iayqr-yaaaa-aaaar-qbopq-cai"
+    }
+}
