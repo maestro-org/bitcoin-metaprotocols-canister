@@ -1,7 +1,7 @@
 DFX := dfx
-CANISTER := bitcoin-metaprotocols-canister-backend
-WASM_PATH := target/wasm32-unknown-unknown/release/bitcoin_metaprotocols_canister_backend.wasm
-DID_PATH := src/bitcoin-metaprotocols-canister-backend/$(CANISTER).did
+CANISTER := bitcoin-metaprotocols-canister
+WASM_PATH := target/wasm32-unknown-unknown/release/bitcoin_metaprotocols_canister.wasm
+DID_PATH := src/bitcoin-metaprotocols-canister/$(CANISTER).did
 
 EXTRACT_DID := candid-extractor $(WASM_PATH) > $(DID_PATH)
 

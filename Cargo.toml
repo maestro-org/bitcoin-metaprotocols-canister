@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "src/bitcoin-metaprotocols-canister-backend"
+    "src/bitcoin-metaprotocols-canister"
 ]
 resolver = "2"

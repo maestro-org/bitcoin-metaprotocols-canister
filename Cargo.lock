@@ -80,7 +80,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "bitcoin-metaprotocols-canister-backend"
+name = "bitcoin-metaprotocols-canister"
 version = "0.1.0"
 dependencies = [
  "candid",

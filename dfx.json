@@ -1,18 +1,23 @@
 {
-  "dfx": "0.26.1",
-  "canisters": {
-    "bitcoin-metaprotocols-canister-backend": {
-      "candid": "src/bitcoin-metaprotocols-canister-backend/bitcoin-metaprotocols-canister-backend.did",
-      "package": "bitcoin-metaprotocols-canister-backend",
-      "type": "rust"
-    }
-  },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
-    }
-  },
-  "output_env_file": ".env",
-  "version": 1
+    "dfx": "0.26.1",
+    "canisters": {
+        "bitcoin-metaprotocols-canister-dev": {
+            "candid": "src/bitcoin-metaprotocols-canister/bitcoin-metaprotocols-canister.did",
+            "package": "bitcoin-metaprotocols-canister",
+            "type": "rust"
+        },
+        "bitcoin-metaprotocols-canister-prod": {
+            "candid": "src/bitcoin-metaprotocols-canister/bitcoin-metaprotocols-canister.did",
+            "package": "bitcoin-metaprotocols-canister",
+            "type": "rust"
+        }
+    },
+    "defaults": {
+        "build": {
+            "args": "",
+            "packtool": ""
+        }
+    },
+    "output_env_file": ".env",
+    "version": 1
 }
