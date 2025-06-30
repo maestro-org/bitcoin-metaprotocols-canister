@@ -148,12 +148,16 @@ pub struct UtxoInscription {
     omb_floor_price: Option<i64>,
 }
 #[derive(CandidType, Deserialize, Serialize, Debug)]
-pub struct MaestroOmbColorGroup {
-    inscription_id: String,
+pub struct MaestroOmbColorGroupData {
     #[serde(rename = "color")]
     omb_color: String,
     #[serde(rename = "floor_price")]
     omb_floor_price: i64,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug)]
+pub struct MaestroOmbColorGroup {
+    data: MaestroOmbColorGroupData,
 }
 
 #[derive(CandidType, Deserialize, Serialize, Debug)]
@@ -360,7 +364,9 @@ async fn get_address_inscriptions(
                         Ok((omb_response,)) => {
                             match serde_json::from_slice::<MaestroOmbColorGroup>(&omb_response.body)
                             {
-                                Ok(omb) => (Some(omb.omb_color), Some(omb.omb_floor_price)),
+                                Ok(omb) => {
+                                    (Some(omb.data.omb_color), Some(omb.data.omb_floor_price))
+                                }
                                 Err(_) => (None, None),
                             }
                         }
@@ -528,7 +534,9 @@ async fn get_utxo_inscriptions(
                         Ok((omb_response,)) => {
                             match serde_json::from_slice::<MaestroOmbColorGroup>(&omb_response.body)
                             {
-                                Ok(omb) => (Some(omb.omb_color), Some(omb.omb_floor_price)),
+                                Ok(omb) => {
+                                    (Some(omb.data.omb_color), Some(omb.data.omb_floor_price))
+                                }
                                 Err(_) => (None, None),
                             }
                         }
