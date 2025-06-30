@@ -99,6 +99,8 @@ pub struct AddressInscription {
     utxo_confirmations: i64,
     collection_symbol: Option<String>,
     floor_price: i64,
+    omb_color: Option<String>,
+    omb_floor_price: Option<i64>,
 }
 
 #[derive(CandidType, Deserialize, Serialize, Debug)]
@@ -142,6 +144,20 @@ pub struct MaestroRuneAndAmount {
 pub struct UtxoInscription {
     inscription_id: String,
     collection_symbol: Option<String>,
+    omb_color: Option<String>,
+    omb_floor_price: Option<i64>,
+}
+#[derive(CandidType, Deserialize, Serialize, Debug)]
+pub struct MaestroOmbColorGroupData {
+    #[serde(rename = "color")]
+    omb_color: String,
+    #[serde(rename = "floor_price")]
+    omb_floor_price: i64,
+}
+
+#[derive(CandidType, Deserialize, Serialize, Debug)]
+pub struct MaestroOmbColorGroup {
+    data: MaestroOmbColorGroupData,
 }
 
 #[derive(CandidType, Deserialize, Serialize, Debug)]
@@ -240,10 +256,10 @@ async fn get_address_inscriptions(
                                 Ok(info_response) => info_response.data.collection_symbol,
                                 Err(e) => {
                                     ic_cdk::println!(
-                                        "Failed to parse MaestroInscriptionInfoResponse: {} (body: {})",
-                                        e,
-                                        String::from_utf8_lossy(&inscription_info_response.body)
-                                    );
+                                "Failed to parse MaestroInscriptionInfoResponse: {} (body: {})",
+                                e,
+                                String::from_utf8_lossy(&inscription_info_response.body)
+                            );
                                     None
                                 }
                             }
@@ -299,10 +315,10 @@ async fn get_address_inscriptions(
                                         .unwrap_or(0),
                                     Err(e) => {
                                         ic_cdk::println!(
-                                        "Failed to parse MaestroCollectionStatsResponse: {} (body: {})",
-                                        e,
-                                        String::from_utf8_lossy(&collection_stats_response.body)
-                                    );
+                                "Failed to parse MaestroCollectionStatsResponse: {} (body: {})",
+                                e,
+                                String::from_utf8_lossy(&collection_stats_response.body)
+                            );
                                         0
                                     }
                                 }
@@ -319,6 +335,44 @@ async fn get_address_inscriptions(
                         };
                 }
 
+                // Fetch OMB color group
+                let omb_color_group_url = format!(
+                    "{}/assets/inscriptions/{}/omb_color_group",
+                    BASE_URL, inscription.inscription_id
+                );
+                let omb_color_group_request = CanisterHttpRequestArgument {
+                    url: omb_color_group_url,
+                    method: HttpMethod::GET,
+                    headers: vec![HttpHeader {
+                        name: "api-key".to_string(),
+                        value: api_key.clone(),
+                    }],
+                    body: None,
+                    max_response_bytes: Some(5 * 1000),
+                    transform: Some(TransformContext {
+                        function: TransformFunc::new(ic_cdk::id(), "transform".to_string()),
+                        context: vec![],
+                    }),
+                };
+                let (omb_color, omb_floor_price) =
+                    match ic_cdk::api::management_canister::http_request::http_request(
+                        omb_color_group_request,
+                        cycles,
+                    )
+                    .await
+                    {
+                        Ok((omb_response,)) => {
+                            match serde_json::from_slice::<MaestroOmbColorGroup>(&omb_response.body)
+                            {
+                                Ok(omb) => {
+                                    (Some(omb.data.omb_color), Some(omb.data.omb_floor_price))
+                                }
+                                Err(_) => (None, None),
+                            }
+                        }
+                        Err(_) => (None, None),
+                    };
+
                 final_result.push(AddressInscription {
                     inscription_id: inscription.inscription_id,
                     satoshis: inscription.satoshis,
@@ -329,6 +383,8 @@ async fn get_address_inscriptions(
                     utxo_confirmations: inscription.utxo_confirmations,
                     collection_symbol,
                     floor_price,
+                    omb_color,
+                    omb_floor_price,
                 });
             }
 
@@ -430,10 +486,10 @@ async fn get_utxo_inscriptions(
                                 Ok(info_response) => info_response.data.collection_symbol,
                                 Err(e) => {
                                     ic_cdk::println!(
-                                        "Failed to parse MaestroInscriptionInfoResponse: {} (body: {})",
-                                        e,
-                                        String::from_utf8_lossy(&inscription_info_response.body)
-                                    );
+                                "Failed to parse MaestroInscriptionInfoResponse: {} (body: {})",
+                                e,
+                                String::from_utf8_lossy(&inscription_info_response.body)
+                            );
                                     None
                                 }
                             }
@@ -449,9 +505,49 @@ async fn get_utxo_inscriptions(
                         }
                     };
 
+                // Fetch OMB color group
+                let omb_color_group_url = format!(
+                    "{}/assets/inscriptions/{}/omb_color_group",
+                    BASE_URL, inscription.inscription_id
+                );
+                let omb_color_group_request = CanisterHttpRequestArgument {
+                    url: omb_color_group_url,
+                    method: HttpMethod::GET,
+                    headers: vec![HttpHeader {
+                        name: "api-key".to_string(),
+                        value: api_key.clone(),
+                    }],
+                    body: None,
+                    max_response_bytes: Some(5 * 1000),
+                    transform: Some(TransformContext {
+                        function: TransformFunc::new(ic_cdk::id(), "transform".to_string()),
+                        context: vec![],
+                    }),
+                };
+                let (omb_color, omb_floor_price) =
+                    match ic_cdk::api::management_canister::http_request::http_request(
+                        omb_color_group_request,
+                        cycles,
+                    )
+                    .await
+                    {
+                        Ok((omb_response,)) => {
+                            match serde_json::from_slice::<MaestroOmbColorGroup>(&omb_response.body)
+                            {
+                                Ok(omb) => {
+                                    (Some(omb.data.omb_color), Some(omb.data.omb_floor_price))
+                                }
+                                Err(_) => (None, None),
+                            }
+                        }
+                        Err(_) => (None, None),
+                    };
+
                 final_result.push(UtxoInscription {
                     inscription_id: inscription.inscription_id,
                     collection_symbol,
+                    omb_color,
+                    omb_floor_price,
                 });
             }
 
